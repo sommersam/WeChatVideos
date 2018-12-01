@@ -2,7 +2,7 @@
 //  AppDelegate.m
 //  WeChatVideos
 //
-//  Created by JunJie on 2018/12/1.
+//  Created by JunJieXia on 2018/12/1.
 //  Copyright © 2018 JunJie. All rights reserved.
 //
 
