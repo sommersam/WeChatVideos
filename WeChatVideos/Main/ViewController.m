@@ -8,6 +8,9 @@
 
 #import "ViewController.h"
 
+#import "ShortVideoViewController.h"
+
+
 @interface ViewController ()
 
 @end
@@ -25,8 +28,14 @@
     [btn setBackgroundColor:[UIColor redColor]];
     btn.frame = CGRectMake(0, 0, 200, 70);
     btn.center = self.view.center;
+    [btn addTarget:self action:@selector(pushToShortVideoController:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:btn];
     
+}
+
+- (void)pushToShortVideoController:(UIButton *)sender
+{
+    [self presentViewController:[ShortVideoViewController new] animated:YES completion:nil];
 }
 
 
