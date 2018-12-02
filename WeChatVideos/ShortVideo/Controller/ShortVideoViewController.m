@@ -8,12 +8,17 @@
 
 #import "ShortVideoViewController.h"
 #import "CameraButton.h"
+#import <AVFoundation/AVFoundation.h>
 @interface ShortVideoViewController () <CameraButtonDelegate>
 
 @property (nonatomic, strong) UIView *preView; //预览视图
 
 @property (nonatomic, strong) UIColor *cancelColor; //取消进度的颜色
 @property (nonatomic, strong) UIImageView *focusImage; //聚焦图
+@property (nonatomic, assign) BOOL isFocusing; //记录是否正在聚焦
+
+@property (nonatomic, strong) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;//相机预览图层
+
 
 @end
 
@@ -68,6 +73,59 @@
     //聚焦图
     _focusImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
     _focusImage.image = [UIImage imageNamed:@"WechatShortVideo_scan_focus"];
+    [_preView addSubview:_focusImage];
+    _focusImage.center = _preView.center;
+    _focusImage.alpha = 0.0f;
+    
+    
+    //点击手势
+    [self addTapGesture];
+}
+
+//点击聚焦手势
+- (void)addTapGesture
+{
+    //单击聚焦手势
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(focusAction:)];
+    [self.preView addGestureRecognizer:tap];
+    
+    //双击放大手势
+    UITapGestureRecognizer *DoubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(enlargeAction:)];
+    DoubleTap.numberOfTapsRequired = 2;
+    [tap requireGestureRecognizerToFail:DoubleTap];
+    [self.preView addGestureRecognizer:DoubleTap];
+    
+}
+
+/** 单击手势*/
+- (void)focusAction:(UITapGestureRecognizer *)tap
+{
+    CGPoint point = [tap locationInView:self.preView];
+    [self focusActionWithPoint:point];
+}
+
+- (void)focusActionWithPoint:(CGPoint)point
+{
+    if (self.isFocusing) {
+        return;
+    }
+    self.isFocusing = YES;
+    //UI点击坐标转化为摄像头坐标
+    CGPoint cameraPoint = [self.captureVideoPreviewLayer captureDevicePointOfInterestForPoint:point];
+    [self setFocusCursoWithPoint:point];
+}
+
+/** 设置聚焦光标的位置 */
+- (void)setFocusCursoWithPoint:(CGPoint)point
+{
+    self.focusImage.center = point;
+    self.focusImage.transform = CGAffineTransformMakeScale(1.5, 1.5);
+    self.focusImage.alpha = 1.f;
+    [UIView animateWithDuration:0.3 animations:^{
+        self.focusImage.transform = CGAffineTransformIdentity;
+    } completion:^(BOOL finished) {
+        self.focusImage.alpha = 0.0f;
+    }];
     
 }
 
